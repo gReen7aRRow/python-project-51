@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urljoin
 
-from progress.bar import Bar
+from progress.bar import IncrementalBar
 
 from page_loader.file import write
 from page_loader.html_builder import process_html
@@ -21,7 +21,7 @@ def download(url: str, dir_path: str) -> str:
     write(modified_page, abs_path)
     logger.debug(f'page {url} was written in {abs_path}')
 
-    bar = Bar(f'Loading: {url}', max=len(original_links))
+    bar = IncrementalBar(f'Loading: {url}', max=len(original_links))
 
     for link in original_links:
         resource_url = urljoin(url, link)
