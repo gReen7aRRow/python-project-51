@@ -41,8 +41,6 @@ EXPECTED_DIR_NAMES = (
     (INPUT[2], True, EXPECTED_DIR_NAMES[2]),
 ])
 def test_local_name(url, is_dir, result):
-    """Test generate name function."""
-
     assert _generate_name(url, is_dir) == result
 
 
@@ -50,6 +48,4 @@ def test_local_name(url, is_dir, result):
                          [(True, DEBUG),
                           (False, WARNING)])
 def test_debug_activate(debug_mode, right_log_level):
-    """Test logger agent statuses."""
-
     assert get_logger(debug_mode).level == right_log_level
