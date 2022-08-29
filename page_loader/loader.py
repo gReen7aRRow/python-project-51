@@ -4,7 +4,7 @@ from urllib.parse import urlparse, urljoin
 import logging
 
 from bs4 import BeautifulSoup
-from progress.bar import PixelBar
+from progress.bar import ChargingBar
 
 from page_loader.file_system import make_dir, save_file
 from page_loader.network import make_request
@@ -87,7 +87,7 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
     logging.info("Starting downloading assets")
 
     bar_name = "Downloading assets: "
-    for asset in PixelBar(bar_name).iter(assets_to_download):
+    for asset in ChargingBar(bar_name).iter(assets_to_download):
         response = make_request(asset["url"])
         asset_path = os.path.join(assets_path, asset["filename"])
         save_file(asset_path, "wb", response.content)

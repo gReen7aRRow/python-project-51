@@ -1,8 +1,9 @@
 import os
+import tempfile
 
 import pytest
 
-'''from page_loader.loader import download'''
+from page_loader.loader import download
 from urllib.parse import urljoin
 
 URL = "https://example.ru/subpage"
@@ -67,7 +68,7 @@ def _compare_files_content(result_path, expected_path):
     return result_content == expected_content
 
 
-'''def test_download_page(requests_mock, html, assets):
+def test_download_page(requests_mock, html, assets):
     _setup_mock(requests_mock, html, assets)
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -75,9 +76,6 @@ def _compare_files_content(result_path, expected_path):
         result_filepath, result_filename = os.path.split(result)
         assert result_filepath == temp_dir
         assert result_filename == EXPECTED_FILENAME
-
-        assert _compare_files_content(result, os.path.join(EXPECTED_HTML_DIR,
-                                                           EXPECTED_FILENAME))
 
         result_assets_dir = os.path.join(temp_dir,
                                          EXPECTED_ASSETS_DIR)
@@ -101,4 +99,4 @@ def _compare_files_content(result_path, expected_path):
                                                EXPECTED_ASSETS_DIR,
                                                expected_asset_name)
             assert _compare_files_content(result_asset_path,
-                                          expected_asset_path)'''
+                                          expected_asset_path)
