@@ -105,7 +105,7 @@ def download(url: str, path=os.getcwd()) -> str:
 
     page_path = save_file(os.path.join(path, page_name),
                           "w",
-                          soup.prettify(formatter="html5"))
+                          soup.prettify())
 
     if assets_to_download:
         _download_assets(assets_to_download, assets_path)
