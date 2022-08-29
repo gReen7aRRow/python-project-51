@@ -1,23 +1,34 @@
 #!/usr/bin/env python3
 
-import logging
 import sys
 
-from page_loader.cli import get_args
-from page_loader.engine import download
-
-
-logger = logging.getLogger('base_error')
+from page_loader.loader import download
+from page_loader.cli import parse_args
+from page_loader.logger_agent import get_logger
+from page_loader.exceptions import (PLTimeoutException,
+                                    PLPermissionException,
+                                    PLConnectionException,
+                                    PLFileExistsException,
+                                    PLTooManyRedirectsException,
+                                    PLHTTPStatusException)
 
 
 def main():
-    """Select format selection."""
-    args = get_args().parse_args()
+    url, path, debug = parse_args()
+    get_logger(debug_mode=debug)
+
     try:
-        print(download(args.url, args.output))
-    except Exception:
-        logger.exception("Exception occurred")
+        final_path = download(url, path)
+    except (PLTimeoutException,
+            PLConnectionException,
+            PLPermissionException,
+            PLFileExistsException,
+            PLTooManyRedirectsException,
+            PLHTTPStatusException) as exception:
+        print(str(exception))
         sys.exit(1)
+
+    print(f"Page was successfully downloaded into '{final_path}'")
 
 
 if __name__ == '__main__':
