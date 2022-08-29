@@ -1,9 +1,8 @@
 import os
-import tempfile
 
 import pytest
 
-from page_loader.loader import download
+'''from page_loader.loader import download'''
 from urllib.parse import urljoin
 
 URL = "https://example.ru/subpage"
