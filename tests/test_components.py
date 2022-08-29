@@ -1,5 +1,3 @@
-"""Some special components tests."""
-
 import pytest
 from logging import DEBUG, WARNING
 
