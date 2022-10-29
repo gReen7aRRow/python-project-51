@@ -7,7 +7,7 @@ from page_loader.exceptions import (PLTimeoutException,
                                     PLConnectionException)
 
 
-def make_request(url: str):
+def request(url: str):
     try:
         response = requests.get(url)
         response.raise_for_status()

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from progress.bar import ChargingBar
 
 from page_loader.file_system import make_dir, save_file
-from page_loader.resource import make_request
+from page_loader.resource import request
 
 
 def _generate_name(url: str, is_dir=False) -> str:
@@ -88,13 +88,13 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
 
     bar_name = "Downloading assets: "
     for asset in ChargingBar(bar_name).iter(assets_to_download):
-        response = make_request(asset["url"])
+        response = request(asset["url"])
         asset_path = os.path.join(assets_path, asset["filename"])
         save_file(asset_path, "wb", response.content)
 
 
 def download(url: str, path=os.getcwd()) -> str:
-    response = make_request(url)
+    response = request(url)
 
     page_name = _generate_name(url)
     assets_dir_name = _generate_name(url, is_dir=True)
