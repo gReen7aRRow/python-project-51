@@ -35,7 +35,7 @@ def save_file(filename: str, mode: str, data: any) -> str:
     except FileNotFoundError as exception:
         logging.info(exception)
         raise PLFileExistsException(exception)
-    
+
     except OSError as exception:
         logging.info(exception)
         raise PLPermissionException(exception)
