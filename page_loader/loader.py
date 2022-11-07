@@ -1,6 +1,5 @@
 import os
-import re
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 import logging
 
 from bs4 import BeautifulSoup
@@ -8,36 +7,7 @@ from progress.bar import ChargingBar
 
 from page_loader.file_system import make_dir, save_file
 from page_loader.resource import request
-
-
-def _generate_name(url: str, is_dir=False) -> str:
-    url = url[:-1] if url.endswith("/") else url
-    parsed_url = urlparse(url)
-
-    path, ext = os.path.splitext(parsed_url.path)
-
-    filename = f"{parsed_url.netloc}{path}"
-    filename += f"?{parsed_url.query}" if parsed_url.query else ""
-    filename = re.sub(r"\W", "-", filename)
-
-    if is_dir:
-        full_filename = filename + "_files"
-        logging.info(f"Create name '{full_filename}' for  directory of "
-                     f"references of '{url}'")
-        return full_filename
-
-    ext = ext if ext else ".html"
-    full_filename = filename + ext
-    logging.info(f"Create name '{full_filename}' for url '{url}'")
-
-    return full_filename
-
-
-def _is_local_asset(page_url: str, full_item_url: str) -> bool:
-    page_url_netloc = urlparse(page_url).netloc
-    item_url_netloc = urlparse(full_item_url).netloc
-
-    return page_url_netloc == item_url_netloc
+from page_loader.urls import _is_local, to_dirname, to_filename
 
 
 def _switch_assets(soup, page_url: str, assets_dir_name: str) -> list:
@@ -61,8 +31,8 @@ def _switch_assets(soup, page_url: str, assets_dir_name: str) -> list:
             if asset_url:
                 full_asset_url = urljoin(page_url + "/", asset_url)
 
-                if _is_local_asset(page_url, full_asset_url):
-                    filename = _generate_name(full_asset_url)
+                if _is_local(page_url, full_asset_url):
+                    filename = to_filename(full_asset_url)
 
                     rel_filepath = os.path.join(assets_dir_name, filename)
 
@@ -96,8 +66,8 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
 def download(url: str, path=os.getcwd()) -> str:
     response = request(url)
 
-    page_name = _generate_name(url)
-    assets_dir_name = _generate_name(url, is_dir=True)
+    page_name = to_filename(url)
+    assets_dir_name = to_dirname(url)
     assets_path = os.path.join(path, assets_dir_name)
 
     soup = BeautifulSoup(response.text, features="html.parser")

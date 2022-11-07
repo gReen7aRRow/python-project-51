@@ -1,7 +1,7 @@
 import pytest
 from logging import DEBUG, WARNING
 
-from page_loader.loader import _generate_name
+from page_loader.urls import to_dirname, to_filename
 from page_loader.logger_agent import get_logger
 
 
@@ -27,19 +27,25 @@ EXPECTED_DIR_NAMES = (
 )
 
 
-@pytest.mark.parametrize("url, is_dir, result", [
-    (INPUT[0], False, EXPECTED_PAGE_NAMES[0]),
-    (INPUT[1], False, EXPECTED_PAGE_NAMES[1]),
-    (INPUT[2], False, EXPECTED_PAGE_NAMES[2]),
-    (INPUT[3], False, EXPECTED_PAGE_NAMES[0]),
-    (INPUT[4], False, EXPECTED_PAGE_NAMES[1]),
-    (INPUT[5], False, EXPECTED_PAGE_NAMES[2]),
-    (INPUT[0], True, EXPECTED_DIR_NAMES[0]),
-    (INPUT[1], True, EXPECTED_DIR_NAMES[1]),
-    (INPUT[2], True, EXPECTED_DIR_NAMES[2]),
+@pytest.mark.parametrize("url, result", [
+    (INPUT[0], EXPECTED_PAGE_NAMES[0]),
+    (INPUT[1], EXPECTED_PAGE_NAMES[1]),
+    (INPUT[2], EXPECTED_PAGE_NAMES[2]),
+    (INPUT[3], EXPECTED_PAGE_NAMES[0]),
+    (INPUT[4], EXPECTED_PAGE_NAMES[1]),
+    (INPUT[5], EXPECTED_PAGE_NAMES[2]),
 ])
-def test_local_name(url, is_dir, result):
-    assert _generate_name(url, is_dir) == result
+def test_page_name(url, result):
+    assert to_filename(url) == result
+
+
+@pytest.mark.parametrize("url, result", [
+    (INPUT[0], EXPECTED_DIR_NAMES[0]),
+    (INPUT[1], EXPECTED_DIR_NAMES[1]),
+    (INPUT[2], EXPECTED_DIR_NAMES[2]),
+])
+def test_dir_name(url, result):
+    assert to_dirname(url) == result
 
 
 @pytest.mark.parametrize("debug_mode, right_log_level",
