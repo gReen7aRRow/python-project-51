@@ -38,7 +38,7 @@ def to_filename(url: str) -> str:
     return full_filename
 
 
-def _is_local(page_url: str, full_item_url: str) -> bool:
+def is_local(page_url: str, full_item_url: str) -> bool:
     page_url_netloc = urlparse(page_url).netloc
     item_url_netloc = urlparse(full_item_url).netloc
 

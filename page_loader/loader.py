@@ -7,7 +7,7 @@ from progress.bar import ChargingBar
 
 from page_loader.file_system import make_dir, save_file
 from page_loader.resource import request
-from page_loader.urls import _is_local, to_dirname, to_filename
+from page_loader.urls import to_dirname, to_filename, is_local
 
 
 def _switch_assets(soup, page_url: str, assets_dir_name: str) -> list:
@@ -31,7 +31,7 @@ def _switch_assets(soup, page_url: str, assets_dir_name: str) -> list:
             if asset_url:
                 full_asset_url = urljoin(page_url + "/", asset_url)
 
-                if _is_local(page_url, full_asset_url):
+                if is_local(page_url, full_asset_url):
                     filename = to_filename(full_asset_url)
 
                     rel_filepath = os.path.join(assets_dir_name, filename)
