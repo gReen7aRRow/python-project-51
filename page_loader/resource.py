@@ -1,10 +1,7 @@
 import logging
 import requests
 
-from page_loader.exceptions import (PLTimeoutException,
-                                    PLHTTPStatusException,
-                                    PLTooManyRedirectsException,
-                                    PLConnectionException)
+from page_loader.exceptions import NetworkError
 
 
 def request(url: str):
@@ -14,18 +11,18 @@ def request(url: str):
 
     except requests.ConnectionError as exception:
         logging.info(f"Connection error. {exception}")
-        raise PLConnectionException(exception)
+        raise NetworkError(exception)
 
     except requests.Timeout as exception:
         logging.info(f"Timeout error. {exception}")
-        raise PLTimeoutException(exception)
+        raise NetworkError(exception)
 
     except requests.TooManyRedirects as exception:
         logging.info(f"TooManyRedirectsError. {exception}")
-        raise PLTooManyRedirectsException(exception)
+        raise NetworkError(exception)
 
     except requests.HTTPError as exception:
         logging.info(f"Status bad code: {response.status_code}. {exception}")
-        raise PLHTTPStatusException(exception)
+        raise NetworkError(exception)
 
     return response

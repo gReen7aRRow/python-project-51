@@ -1,7 +1,7 @@
 import os
 import logging
 
-from page_loader.exceptions import PLFileExistsException, PLPermissionException
+from page_loader.exceptions import FileSystemError
 
 
 def make_dir(path: str) -> str:
@@ -15,11 +15,11 @@ def make_dir(path: str) -> str:
 
     except PermissionError as exception:
         logging.info(exception)
-        raise PLPermissionException(exception)
+        raise FileSystemError(exception)
 
     except FileNotFoundError as exception:
         logging.info(exception)
-        raise PLFileExistsException(exception)
+        raise FileSystemError(exception)
 
     logging.info(f"{path} was created")
     return path
@@ -34,11 +34,11 @@ def save_file(filename: str, mode: str, data: any) -> str:
 
     except FileNotFoundError as exception:
         logging.info(exception)
-        raise PLFileExistsException(exception)
+        raise FileSystemError(exception)
 
     except OSError as exception:
         logging.info(exception)
-        raise PLPermissionException(exception)
+        raise FileSystemError(exception)
 
     logging.info(f"File '{filename}' was saved with mode '{mode}'")
     return filename
