@@ -25,8 +25,10 @@ def make_dir(path: str) -> str:
     return path
 
 
-def save_file(filename: str, mode: str, data: any) -> str:
+def save_file(filename: str, data: any) -> str:
     logging.info(f"Starting to save '{filename}'")
+
+    mode = 'wb' if isinstance(data, bytes) else 'w'
 
     try:
         with open(filename, mode) as file:

@@ -60,7 +60,7 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
     for asset in ChargingBar(bar_name).iter(assets_to_download):
         response = request(asset["url"])
         asset_path = os.path.join(assets_path, asset["filename"])
-        save_file(asset_path, "wb", response.content)
+        save_file(asset_path, response.content)
 
 
 def download(url: str, path=os.getcwd()) -> str:
@@ -74,7 +74,6 @@ def download(url: str, path=os.getcwd()) -> str:
     assets_to_download = _switch_assets(soup, url, assets_dir_name)
 
     page_path = save_file(os.path.join(path, page_name),
-                          "w",
                           soup.prettify())
 
     if assets_to_download:
