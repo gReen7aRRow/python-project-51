@@ -35,9 +35,9 @@ def find_all_elements(soup, page_url: str, assets_dir_name: str) -> list:
                     asset[attr] = rel_filepath
 
                     all_tags.append({
-                            "url": full_asset_url,
-                            "filename": filename
-                        })
+                        "url": full_asset_url,
+                        "filename": filename
+                    })
 
     return all_tags
 
