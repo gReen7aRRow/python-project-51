@@ -41,7 +41,9 @@ def filter_elements(all_tags: list, page_url: str):
     for asset in all_tags:
         full_asset_url = asset['url']
 
-        if not is_local(page_url, full_asset_url):
+        if is_local(page_url, full_asset_url):
+            pass
+        else:
             all_tags.remove(asset)
 
 
@@ -94,3 +96,4 @@ def download(url: str, path=os.getcwd()) -> str:
                           soup.prettify())
 
     return page_path
+
