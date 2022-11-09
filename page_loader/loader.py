@@ -2,29 +2,38 @@ import os
 from urllib.parse import urljoin
 import logging
 
-from bs4 import BeautifulSoup
 from progress.bar import ChargingBar
 
 from page_loader.file_system import make_dir, save_file
-from page_loader.resource import request
+from page_loader.resource import request, parsing_html
 from page_loader.urls import to_dirname, to_filename, is_local
 
 
-def _switch_assets(soup, page_url: str, assets_dir_name: str) -> list:
-    logging.info("Starting analyzing page assets")
+ASSETS_TYPES = {
+    "img": "src",
+    "script": "src",
+    "link": "href"
+}
 
-    asset_types = {
-        "img": "src",
-        "script": "src",
-        "link": "href"
-    }
+
+def find_all_elements(soup):
+    all_tags = []
+
+    for tag in ASSETS_TYPES:
+        tags = soup.find_all(tag)
+
+        for el in tags:
+            all_tags.append(el)
+
+    return all_tags
+
+
+def filter_elements(all_tags: list, page_url: str) -> list:
     assets_to_download = []
 
-    for tag, attr in asset_types.items():
+    for tag, attr in ASSETS_TYPES.items():
 
-        assets = soup.find_all(tag)
-        for asset in assets:
-            logging.info(f"Analyze '{attr}' in '{tag}'")
+        for asset in all_tags:
 
             asset_url = asset.get(attr)
 
@@ -34,18 +43,11 @@ def _switch_assets(soup, page_url: str, assets_dir_name: str) -> list:
                 if is_local(page_url, full_asset_url):
                     filename = to_filename(full_asset_url)
 
-                    rel_filepath = os.path.join(assets_dir_name, filename)
-
-                    asset[attr] = rel_filepath
                     assets_to_download.append({
                         "url": full_asset_url,
                         "filename": filename
                     })
 
-                    logging.info(f"Switch asset reference "
-                                 f"'{asset[attr]}'")
-
-    logging.info("End of analyzing page assets")
     return assets_to_download
 
 
@@ -63,20 +65,39 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
         save_file(asset_path, response.content)
 
 
-def download(url: str, path=os.getcwd()) -> str:
-    response = request(url)
+def change_attr_to_local_path(soup, page_url, assets_dir_name):
+    for tag, attr in ASSETS_TYPES.items():
 
+        assets = soup.find_all(tag)
+        for asset in assets:
+
+            asset_url = asset.get(attr)
+
+            if asset_url:
+                full_asset_url = urljoin(page_url + "/", asset_url)
+
+                filename = to_filename(full_asset_url)
+
+                rel_filepath = os.path.join(assets_dir_name, filename)
+
+                asset[attr] = rel_filepath
+
+
+def download(url: str, path=os.getcwd()) -> str:
     page_name = to_filename(url)
     assets_dir_name = to_dirname(url)
     assets_path = os.path.join(path, assets_dir_name)
 
-    soup = BeautifulSoup(response.text, features="html.parser")
-    assets_to_download = _switch_assets(soup, url, assets_dir_name)
-
-    page_path = save_file(os.path.join(path, page_name),
-                          soup.prettify())
+    response = request(url)
+    soup = parsing_html(response.text)
+    tags_list = find_all_elements(soup)
+    assets_to_download = filter_elements(tags_list, url)
 
     if assets_to_download:
         _download_assets(assets_to_download, assets_path)
+        change_attr_to_local_path(soup, url, assets_dir_name)
+
+    page_path = save_file(os.path.join(path, page_name),
+                          soup.prettify())
 
     return page_path

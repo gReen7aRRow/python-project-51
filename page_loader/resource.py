@@ -1,5 +1,6 @@
 import logging
 import requests
+from bs4 import BeautifulSoup
 
 from page_loader.exceptions import NetworkError
 
@@ -26,3 +27,7 @@ def request(url: str):
         raise NetworkError(exception)
 
     return response
+
+
+def parsing_html(response):
+    return BeautifulSoup(response, features='html.parser')
