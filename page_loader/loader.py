@@ -88,12 +88,12 @@ def download(url: str, path=os.getcwd()) -> str:
     soup = parsing_html(response.text)
     tags_list = find_all_elements(soup, url)
     # filter_elements(tags_list, url)
-
-    if tags_list:
-        _download_assets(tags_list, assets_path)
-        change_attr_to_local_path(tags_list, url, assets_dir_name)
+    change_attr_to_local_path(tags_list, url, assets_dir_name)
 
     page_path = save_file(os.path.join(path, page_name),
                           soup.prettify())
+
+    if tags_list:
+        _download_assets(tags_list, assets_path)
 
     return page_path
