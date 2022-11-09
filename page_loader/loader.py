@@ -16,39 +16,33 @@ ASSETS_TYPES = {
 }
 
 
-def find_all_elements(soup):
+def find_all_elements(soup, page_url: str) -> list:
     all_tags = []
-
-    for tag in ASSETS_TYPES:
-        tags = soup.find_all(tag)
-
-        for el in tags:
-            all_tags.append(el)
-
-    return all_tags
-
-
-def filter_elements(all_tags: list, page_url: str) -> list:
-    assets_to_download = []
 
     for tag, attr in ASSETS_TYPES.items():
 
-        for asset in all_tags:
-
+        for asset in soup.find_all(tag):
             asset_url = asset.get(attr)
 
             if asset_url:
                 full_asset_url = urljoin(page_url + "/", asset_url)
 
-                if is_local(page_url, full_asset_url):
-                    filename = to_filename(full_asset_url)
+                filename = to_filename(full_asset_url)
 
-                    assets_to_download.append({
+                all_tags.append({
                         "url": full_asset_url,
                         "filename": filename
                     })
 
-    return assets_to_download
+    return all_tags
+
+
+def filter_elements(all_tags: list, page_url: str):
+    for asset in all_tags:
+        full_asset_url = asset['url']
+
+        if not is_local(page_url, full_asset_url):
+            all_tags.remove(asset)
 
 
 def _download_assets(assets_to_download: list, assets_path: str) -> None:
@@ -89,11 +83,11 @@ def download(url: str, path=os.getcwd()) -> str:
 
     response = request(url)
     soup = parsing_html(response.text)
-    tags_list = find_all_elements(soup)
-    assets_to_download = filter_elements(tags_list, url)
+    tags_list = find_all_elements(soup, url)
+    filter_elements(tags_list, url)
 
-    if assets_to_download:
-        _download_assets(assets_to_download, assets_path)
+    if tags_list:
+        _download_assets(tags_list, assets_path)
         change_attr_to_local_path(tags_list, url, assets_dir_name)
 
     page_path = save_file(os.path.join(path, page_name),
