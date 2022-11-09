@@ -16,7 +16,7 @@ ASSETS_TYPES = {
 }
 
 
-def find_all_elements(soup, page_url: str) -> list:
+def find_all_elements(soup, page_url: str, assets_dir_name: str) -> list:
     all_tags = []
 
     for tag, attr in ASSETS_TYPES.items():
@@ -29,6 +29,10 @@ def find_all_elements(soup, page_url: str) -> list:
 
                 if is_local(page_url, full_asset_url):
                     filename = to_filename(full_asset_url)
+
+                    rel_filepath = os.path.join(assets_dir_name, filename)
+
+                    asset[attr] = rel_filepath
 
                     all_tags.append({
                             "url": full_asset_url,
@@ -62,21 +66,16 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
         save_file(asset_path, response.content)
 
 
-def change_attr_to_local_path(tags_list, page_url, assets_dir_name):
+def change_attr_to_local_path(tags_list, page_url, soup, assets_dir_name):
     for tag, attr in ASSETS_TYPES.items():
 
+        # assets = soup.find_all(tag)
         for asset in tags_list:
+            filename = to_filename(asset['url'])
 
-            asset_url = asset.get(attr)
+            rel_filepath = os.path.join(assets_dir_name, filename)
 
-            if asset_url:
-                full_asset_url = urljoin(page_url + "/", asset_url)
-
-                filename = to_filename(full_asset_url)
-
-                rel_filepath = os.path.join(assets_dir_name, filename)
-
-                asset[attr] = rel_filepath
+            asset[attr] = rel_filepath
 
 
 def download(url: str, path=os.getcwd()) -> str:
@@ -86,9 +85,9 @@ def download(url: str, path=os.getcwd()) -> str:
 
     response = request(url)
     soup = parsing_html(response.text)
-    tags_list = find_all_elements(soup, url)
+    tags_list = find_all_elements(soup, url, assets_dir_name)
     # filter_elements(tags_list, url)
-    change_attr_to_local_path(tags_list, url, assets_dir_name)
+    # change_attr_to_local_path(tags_list, url, assets_dir_name)
 
     page_path = save_file(os.path.join(path, page_name),
                           soup.prettify())
