@@ -27,12 +27,13 @@ def find_all_elements(soup, page_url: str) -> list:
             if asset_url:
                 full_asset_url = urljoin(page_url + "/", asset_url)
 
-                filename = to_filename(full_asset_url)
+                if is_local(page_url, full_asset_url):
+                    filename = to_filename(full_asset_url)
 
-                all_tags.append({
-                        "url": full_asset_url,
-                        "filename": filename
-                    })
+                    all_tags.append({
+                            "url": full_asset_url,
+                            "filename": filename
+                        })
 
     return all_tags
 
@@ -86,7 +87,7 @@ def download(url: str, path=os.getcwd()) -> str:
     response = request(url)
     soup = parsing_html(response.text)
     tags_list = find_all_elements(soup, url)
-    filter_elements(tags_list, url)
+    # filter_elements(tags_list, url)
 
     if tags_list:
         _download_assets(tags_list, assets_path)
@@ -96,4 +97,3 @@ def download(url: str, path=os.getcwd()) -> str:
                           soup.prettify())
 
     return page_path
-
