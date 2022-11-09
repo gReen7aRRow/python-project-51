@@ -65,11 +65,10 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
         save_file(asset_path, response.content)
 
 
-def change_attr_to_local_path(soup, page_url, assets_dir_name):
+def change_attr_to_local_path(tags_list, page_url, assets_dir_name):
     for tag, attr in ASSETS_TYPES.items():
 
-        assets = soup.find_all(tag)
-        for asset in assets:
+        for asset in tags_list:
 
             asset_url = asset.get(attr)
 
@@ -95,7 +94,7 @@ def download(url: str, path=os.getcwd()) -> str:
 
     if assets_to_download:
         _download_assets(assets_to_download, assets_path)
-        change_attr_to_local_path(soup, url, assets_dir_name)
+        change_attr_to_local_path(tags_list, url, assets_dir_name)
 
     page_path = save_file(os.path.join(path, page_name),
                           soup.prettify())
