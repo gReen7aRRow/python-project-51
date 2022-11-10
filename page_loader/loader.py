@@ -17,11 +17,15 @@ ASSETS_TYPES = {
 
 
 def find_all_elements(soup, page_url: str, assets_dir_name: str) -> list:
+    logging.info("Starting analyzing page assets")
+
     all_tags = []
 
     for tag, attr in ASSETS_TYPES.items():
 
         for asset in soup.find_all(tag):
+            logging.info(f"Analyze '{attr}' in '{tag}'")
+
             asset_url = asset.get(attr)
 
             if asset_url:
@@ -39,17 +43,11 @@ def find_all_elements(soup, page_url: str, assets_dir_name: str) -> list:
                         "filename": filename
                     })
 
+                    logging.info(f"Switch asset reference "
+                                 f"'{asset[attr]}'")
+
+    logging.info("End of analyzing page assets")
     return all_tags
-
-
-def filter_elements(all_tags: list, page_url: str):
-    for asset in all_tags:
-        full_asset_url = asset['url']
-
-        if is_local(page_url, full_asset_url):
-            pass
-        else:
-            all_tags.remove(asset)
 
 
 def _download_assets(assets_to_download: list, assets_path: str) -> None:
@@ -66,18 +64,6 @@ def _download_assets(assets_to_download: list, assets_path: str) -> None:
         save_file(asset_path, response.content)
 
 
-def change_attr_to_local_path(tags_list, page_url, soup, assets_dir_name):
-    for tag, attr in ASSETS_TYPES.items():
-
-        # assets = soup.find_all(tag)
-        for asset in tags_list:
-            filename = to_filename(asset['url'])
-
-            rel_filepath = os.path.join(assets_dir_name, filename)
-
-            asset[attr] = rel_filepath
-
-
 def download(url: str, path=os.getcwd()) -> str:
     page_name = to_filename(url)
     assets_dir_name = to_dirname(url)
@@ -86,8 +72,6 @@ def download(url: str, path=os.getcwd()) -> str:
     response = request(url)
     soup = parsing_html(response.text)
     tags_list = find_all_elements(soup, url, assets_dir_name)
-    # filter_elements(tags_list, url)
-    # change_attr_to_local_path(tags_list, url, assets_dir_name)
 
     page_path = save_file(os.path.join(path, page_name),
                           soup.prettify())
